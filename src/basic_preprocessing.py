@@ -4,6 +4,14 @@ import os
 import sys
 
 def apply_histogram_equalization(image):
+    """
+    对图像进行直方图均衡化处理，提升图像对比度，支持灰度图和彩色图
+
+    参数:
+        image: np.ndarray - 输入图像（OpenCV读取的BGR彩色图或灰度图）
+    返回:
+        np.ndarray - 直方图均衡化后的图像，与输入图像格式保持一致
+    """
     if len(image.shape) == 2:
         # 灰度图直接均衡化
         equalized = cv2.equalizeHist(image)
@@ -16,6 +24,16 @@ def apply_histogram_equalization(image):
     return equalized
 
 def create_processing_comparison(original, processed_list, titles):
+    """
+    将原始图像与各处理后图像水平拼接为对比图，并为每个子图添加带背景的标题
+
+    参数:
+        original: np.ndarray - 原始BGR彩色图像（作为对比图第一个子图）
+        processed_list: list[np.ndarray] - 处理后的图像列表，支持灰度图/彩色图
+        titles: list[str] - 对比图中每个子图的标题列表，长度需与子图总数一致
+    返回:
+        np.ndarray - 添加了标题的水平拼接式图像处理对比图（BGR格式）
+    """
     # 统一转换为BGR格式以便拼接
     display_images = [original]
     for img in processed_list:
@@ -54,6 +72,18 @@ def create_processing_comparison(original, processed_list, titles):
     return comparison
 
 def save_images(img_bgr, img_gray, img_blur, equalized_img, comparison_img, img_name, save_dir="output"):
+    """
+    将原始图像、各步处理后图像及对比图保存到指定目录，自动创建不存在的保存目录
+
+    参数:
+        img_bgr: np.ndarray - 原始BGR彩色图像
+        img_gray: np.ndarray - 灰度转换后的图像
+        img_blur: np.ndarray - 高斯模糊去噪后的图像
+        equalized_img: np.ndarray - 直方图均衡化后的图像
+        comparison_img: np.ndarray - 图像处理拼接对比图
+        img_name: str - 原始图像的文件名（用于生成保存的图像文件名）
+        save_dir: str - 图像保存的目标目录，默认值为"output"
+    """
     # 检查并创建目录
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -72,6 +102,14 @@ def save_images(img_bgr, img_gray, img_blur, equalized_img, comparison_img, img_
     print(f"所有图像已保存到：{os.path.abspath(save_dir)}")
 
 def convert_to_grayscale(img_bgr):
+    """
+    对BGR彩色图依次执行灰度转换、高斯模糊去噪、直方图均衡化处理
+
+    参数:
+        img_bgr: np.ndarray - 输入的OpenCV BGR格式彩色图像
+    返回:
+        tuple[np.ndarray, np.ndarray, np.ndarray] - 灰度图、高斯模糊图、直方图均衡化图的元组
+    """
       # 3. 图像处理流程
     img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)  # 灰度转换
     img_blur = cv2.GaussianBlur(img_gray, (5, 5), 0)  # 高斯模糊去噪
@@ -79,6 +117,13 @@ def convert_to_grayscale(img_bgr):
     return img_gray,img_blur,equalized_img
 
 def run_preprocessing_pipeline(image_path=None, output_dir="output"):
+    """
+    执行图像预处理全流程，包含图像读取、灰度转换、高斯模糊、均衡化、对比图创建及图像保存
+
+    参数:
+        image_path: str | None - 输入图像的文件路径，默认值为None（使用默认测试图images/basic_test.jpg）
+        output_dir: str - 所有处理后图像的保存目录，默认值为"output"
+    """
     # 1. 处理参数
     if image_path is None:
         # 使用默认测试图像
